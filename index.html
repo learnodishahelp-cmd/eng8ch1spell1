@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📝 SpellMaster - English Spelling Practice</title>
+    <style>
+        :root {
+            --bg: #f0f4f8;
+            --surface: #ffffff;
+            --surface-alt: #f8fafc;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --primary-light: #eef2ff;
+            --success: #10b981;
+            --success-light: #d1fae5;
+            --danger: #ef4444;
+            --danger-light: #fee2e2;
+            --warning: #f59e0b;
+            --warning-light: #fef3c7;
+            --text: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --border: #e2e8f0;
+            --border-focus: #a5b4fc;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --radius-xs: 6px;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+            --transition: 0.2s ease;
+            --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 16px;
+            line-height: 1.5;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 620px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .app-header {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            border: 1px solid var(--border);
+        }
+        .app-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: -0.3px;
+        }
+        .app-title .icon {
+            font-size: 1.8rem;
+        }
+        .score-pills {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .score-pill {
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: -0.2px;
+            transition: var(--transition);
+            border: 2px solid transparent;
+        }
+        .score-pill.correct-pill {
+            background: var(--success-light);
+            color: #065f46;
+            border-color: #a7f3d0;
+        }
+        .score-pill.wrong-pill {
+            background: var(--danger-light);
+            color: #991b1b;
+            border-color: #fecaca;
+        }
+        .score-pill.streak-pill {
+            background: var(--warning-light);
+            color: #92400e;
+            border-color: #fde68a;
+        }
+        .score-pill .pill-num {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        /* Tab navigation */
+        .tab-nav {
+            display: flex;
+            gap: 4px;
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 5px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 11px 20px;
+            border: none;
+            background: transparent;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            transition: var(--transition);
+            font-family: var(--font);
+            letter-spacing: -0.2px;
+            white-space: nowrap;
+        }
+        .tab-btn.active {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: var(--shadow-md);
+        }
+        .tab-btn:hover:not(.active) {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .main-content {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            min-height: 400px;
+        }
+
+        .view {
+            display: none;
+            animation: fadeSlideIn 0.3s ease;
+        }
+        .view.active {
+            display: block;
+        }
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .practice-area {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .speaker-card {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: var(--shadow-md);
+            border: 3px solid transparent;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .speaker-card:hover {
+            transform: scale(1.06);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--border-focus);
+        }
+        .speaker-card:active {
+            transform: scale(0.95);
+            transition: 0.1s ease;
+        }
+        .speaker-card.speaking {
+            animation: pulseSpeaker 0.6s ease-in-out infinite;
+            border-color: var(--primary);
+            background: #e0e7ff;
+        }
+        @keyframes pulseSpeaker {
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 0 24px rgba(79, 70, 229, 0);
+            }
+        }
+        .speaker-icon {
+            font-size: 4rem;
+            transition: var(--transition);
+        }
+        .speaker-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            max-width: 420px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .spell-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 14px 18px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 1.2rem;
+            font-family: var(--font);
+            letter-spacing: 1.5px;
+            transition: var(--transition);
+            outline: none;
+            background: var(--surface-alt);
+            color: var(--text);
+        }
+        .spell-input:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px rgba(165, 180, 252, 0.3);
+            background: #fff;
+        }
+        .spell-input.correct-flash {
+            border-color: var(--success) !important;
+            background: var(--success-light) !important;
+            box-shadow: 0 0 0 8px rgba(16, 185, 129, 0.15) !important;
+            animation: correctPulse 0.5s ease;
+        }
+        .spell-input.wrong-flash {
+            border-color: var(--danger) !important;
+            background: var(--danger-light) !important;
+            box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.15) !important;
+            animation: shake 0.5s ease;
+        }
+        @keyframes correctPulse {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.03);
+            }
+        }
+        @keyframes shake {
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+            20% {
+                transform: translateX(-8px);
+            }
+            40% {
+                transform: translateX(8px);
+            }
+            60% {
+                transform: translateX(-5px);
+            }
+            80% {
+                transform: translateX(5px);
+            }
+        }
+
+        .btn {
+            padding: 12px 22px;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            font-family: var(--font);
+            transition: var(--transition);
+            letter-spacing: -0.2px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: var(--shadow-sm);
+        }
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            transform: none;
+        }
+        .btn-outline {
+            background: #fff;
+            color: var(--primary);
+            border: 2px solid var(--border);
+        }
+        .btn-outline:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+        .btn-outline:disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 2px solid transparent;
+        }
+        .btn-ghost:hover {
+            background: var(--surface-alt);
+            color: var(--text);
+        }
+        .btn-sm {
+            padding: 7px 14px;
+            font-size: 0.82rem;
+            border-radius: var(--radius-xs);
+        }
+
+        .action-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .feedback-area {
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        .feedback-correct {
+            color: #065f46;
+            font-size: 1.1rem;
+        }
+        .feedback-wrong {
+            color: #991b1b;
+        }
+        .feedback-wrong .correct-spelling {
+            font-weight: 700;
+            font-size: 1.3rem;
+            letter-spacing: 1px;
+            color: var(--primary);
+            text-decoration: underline;
+            text-underline-offset: 4px;
+        }
+
+        /* MCQ options */
+        .mcq-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+            max-width: 420px;
+            margin: 0 auto;
+        }
+        .mcq-option-btn {
+            padding: 14px 10px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--surface-alt);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: var(--font);
+            letter-spacing: 0.8px;
+            text-align: center;
+            word-break: break-word;
+        }
+        .mcq-option-btn:hover:not(.option-correct):not(.option-incorrect) {
+            border-color: var(--border-focus);
+            background: #f0f4ff;
+        }
+        .mcq-option-btn.option-correct {
+            background: var(--success-light);
+            border-color: var(--success);
+            color: #065f46;
+            pointer-events: none;
+        }
+        .mcq-option-btn.option-incorrect {
+            background: var(--danger-light);
+            border-color: var(--danger);
+            color: #991b1b;
+            pointer-events: none;
+        }
+        @media (max-width: 500px) {
+            .mcq-options {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 24px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            z-index: 200;
+            box-shadow: var(--shadow-lg);
+            animation: toastIn 0.4s ease, toastOut 0.4s ease 2s forwards;
+            pointer-events: none;
+        }
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        @keyframes toastOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-10px);
+            }
+        }
+        @media (max-width: 500px) {
+            .app-header {
+                padding: 14px 16px;
+                gap: 8px;
+            }
+            .app-title {
+                font-size: 1.3rem;
+            }
+            .score-pill {
+                padding: 6px 10px;
+                font-size: 0.78rem;
+            }
+            .score-pill .pill-num {
+                font-size: 1rem;
+            }
+            .main-content {
+                padding: 16px;
+            }
+            .speaker-card {
+                width: 110px;
+                height: 110px;
+            }
+            .speaker-icon {
+                font-size: 3rem;
+            }
+            .spell-input {
+                font-size: 1rem;
+                padding: 12px 14px;
+            }
+            .btn {
+                padding: 10px 16px;
+                font-size: 0.85rem;
+            }
+            .tab-btn {
+                padding: 10px 14px;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="app-title">
+                <span class="icon">📝</span> SpellMaster
+            </div>
+            <div class="score-pills">
+                <span class="score-pill correct-pill">✅ <span class="pill-num" id="correctCount">0</span></span>
+                <span class="score-pill wrong-pill">❌ <span class="pill-num" id="wrongCount">0</span></span>
+                <span class="score-pill streak-pill">🔥 <span class="pill-num" id="streakCount">0</span></span>
+            </div>
+        </header>
+
+        <nav class="tab-nav">
+            <button class="tab-btn active" data-tab="practice">🎯 Practice</button>
+            <button class="tab-btn" data-tab="mcq">🔤 MCQ</button>
+        </nav>
+
+        <main class="main-content">
+            <!-- Practice View -->
+            <div class="view active" id="view-practice">
+                <div class="practice-area">
+                    <div class="speaker-card" id="practiceSpeakerBtn" title="Click to hear the word">
+                        <span class="speaker-icon">🔊</span>
+                    </div>
+                    <span class="speaker-label">Click the speaker to hear the word</span>
+                    <div class="input-group">
+                        <input type="text" class="spell-input" id="spellInput" placeholder="Type the spelling here..."
+                        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                        <button class="btn btn-primary" id="submitBtn">✓ Check</button>
+                    </div>
+                    <div class="action-row">
+                        <button class="btn btn-ghost btn-sm" id="practiceListenAgainBtn">🔁 Listen Again</button>
+                        <button class="btn btn-outline btn-sm" id="practiceNextBtn" disabled>⏭ Next Word</button>
+                    </div>
+                    <div class="feedback-area" id="practiceFeedback"></div>
+                </div>
+            </div>
+
+            <!-- MCQ View -->
+            <div class="view" id="view-mcq">
+                <div class="practice-area">
+                    <div class="speaker-card" id="mcqSpeakerBtn" title="Click to hear the word">
+                        <span class="speaker-icon">🔊</span>
+                    </div>
+                    <span class="speaker-label">Listen and choose the correct spelling</span>
+                    <div class="mcq-options" id="mcqOptions">
+                        <!-- dynamically filled -->
+                    </div>
+                    <div class="action-row">
+                        <button class="btn btn-ghost btn-sm" id="mcqListenAgainBtn">🔁 Listen Again</button>
+                        <button class="btn btn-outline btn-sm" id="mcqNextBtn" disabled>⏭ Next Word</button>
+                    </div>
+                    <div class="feedback-area" id="mcqFeedback"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div id="toastContainer"></div>
+
+    <script>
+        (function() {
+            // ==================== DOM ELEMENTS ====================
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const practiceView = document.getElementById('view-practice');
+            const mcqView = document.getElementById('view-mcq');
+
+            // Practice elements
+            const practiceSpeakerBtn = document.getElementById('practiceSpeakerBtn');
+            const spellInput = document.getElementById('spellInput');
+            const submitBtn = document.getElementById('submitBtn');
+            const practiceListenAgainBtn = document.getElementById('practiceListenAgainBtn');
+            const practiceNextBtn = document.getElementById('practiceNextBtn');
+            const practiceFeedback = document.getElementById('practiceFeedback');
+
+            // MCQ elements
+            const mcqSpeakerBtn = document.getElementById('mcqSpeakerBtn');
+            const mcqOptionsDiv = document.getElementById('mcqOptions');
+            const mcqListenAgainBtn = document.getElementById('mcqListenAgainBtn');
+            const mcqNextBtn = document.getElementById('mcqNextBtn');
+            const mcqFeedback = document.getElementById('mcqFeedback');
+
+            // Score elements
+            const correctCountEl = document.getElementById('correctCount');
+            const wrongCountEl = document.getElementById('wrongCount');
+            const streakCountEl = document.getElementById('streakCount');
+            const toastContainer = document.getElementById('toastContainer');
+
+            // ==================== STATE ====================
+            const STORAGE_KEY = 'spellmaster_wordlist_simple';
+            const SCORE_KEY = 'spellmaster_score';
+
+            let wordList = [];
+            let sessionScore = { correct: 0, wrong: 0, streak: 0, bestStreak: 0 };
+            let activeTab = 'practice'; // 'practice' or 'mcq'
+            let currentWordPractice = null;
+            let currentWordMcq = null;
+            let mcqAnswered = false;
+
+            // Default words
+            const defaultWords = [
+                { word: 'frustration', hint: 'Pleasing to the eye; very attractive' },
+                { word: 'collectively', hint: 'A very large mammal with a trunk' },
+                { word: 'literary', hint: 'Tall African animal with a long neck' },
+                { word: 'particular', hint: 'Intelligent marine mammal' },
+                { word: 'advisor', hint: 'Flightless bird that lives in cold regions' },
+                { word: 'trivial', hint: 'Lizard that changes color' },
+                { word: 'cheerful', hint: 'Australian marsupial that jumps' },
+                { word: 'forlorn', hint: 'Eight-armed sea creature' },
+                { word: 'distraught', hint: 'Pink wading bird' },
+                { word: 'vague', hint: 'Small spiny mammal' },
+                { word: 'expression', hint: 'Long thin Italian pasta' },
+                { word: 'excuse', hint: 'Sweet brown treat made from cocoa' },
+                { word: 'audience', hint: 'Tropical fruit with spiky skin' },
+                { word: 'axhausted', hint: 'Creamy green fruit' },
+                { word: 'strategy', hint: 'Green vegetable with tree-like shape' },
+                { word: 'profusely', hint: 'Small red berry fruit' },
+                { word: 'approach', hint: 'Warm spice from tree bark' },
+                { word: 'intricate', hint: 'White vegetable related to broccoli' },
+                { word: 'streamed', hint: 'Very tall natural landform' },
+                { word: 'patiently', hint: 'Bright flash during a storm' },
+                { word: 'illuminate', hint: 'Powerful tropical storm' },
+                { word: 'evident', hint: 'Mountain that erupts lava' },
+                { word: 'gnawed', hint: 'Slow-moving mass of ice' },
+                { word: 'cultivation', hint: 'Colorful arc in the sky after rain' },
+                { word: 'suggest', hint: 'Clear, sparkling mineral' },
+                { word: 'irrigation', hint: 'Violently rotating column of air' },
+                { word: 'advocate', hint: 'Study of the natural world' },
+                { word: 'manure', hint: 'Place where books are kept' },
+                { word: 'amid', hint: 'System of communication' },
+                { word: 'observe', hint: 'Math of shapes and angles' },
+                { word: 'amuse', hint: 'Study of past events' },
+                { word: 'sarcasm', hint: 'Book that lists words and meanings' },
+                { word: 'muttered', hint: 'Comprehensive reference book' },
+                { word: 'snickers', hint: 'Step-by-step problem-solving procedure' },
+                { word: 'trowned', hint: 'Chart showing days and months' },
+                { word: 'unimpressed', hint: 'Device used to stay dry in rain' },
+                { word: 'absurd', hint: 'Two-wheeled vehicle' },
+                { word: 'repellent', hint: 'Instrument for measuring temperature' },
+                { word: 'unfazed', hint: 'Appliance that keeps food cold' },
+                { word: 'glance', hint: 'Formal promise or assurance' },
+                { word: 'sceptical', hint: 'Person living nearby (UK spelling)' },
+                { word: 'unevenly', hint: 'Place where you eat meals out' },
+                { word: 'scatter', hint: 'Pattern of beats in music' },
+                { word: 'erupted', hint: 'Inner sense of right and wrong' },
+                { word: 'realisation', hint: 'System of government with many rules' },
+                { word: 'scolding', hint: 'Unique personal characteristic' },
+                { word: 'gesture', hint: 'Ancient Egyptian ruler' },
+                { word: 'regret', hint: 'Dark outline shape against light' },
+                { word: 'brimmed', hint: 'Disguise to blend with surroundings' },
+                { word: 'victorious', hint: 'Military rank below captain' },
+                { word: 'orchestrated', hint: 'Musical instrument with wooden bars' },
+                { word: 'genuine', hint: 'Large airship' },
+                { word: 'dawn', hint: 'Memory aid technique' }
+            ];
+
+            // ==================== PERSISTENCE ====================
+            function loadWordList() {
+                try {
+                    const data = localStorage.getItem(STORAGE_KEY);
+                    if (data) {
+                        const parsed = JSON.parse(data);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            wordList = parsed;
+                            return;
+                        }
+                    }
+                } catch (e) {}
+                wordList = defaultWords.map(w => ({ ...w }));
+                saveWordList();
+            }
+
+            function saveWordList() {
+                try { localStorage.setItem(STORAGE_KEY, JSON.stringify(wordList)); } catch (e) {}
+            }
+
+            function loadScore() {
+                try {
+                    const data = localStorage.getItem(SCORE_KEY);
+                    if (data) {
+                        const parsed = JSON.parse(data);
+                        sessionScore = { ...sessionScore, ...parsed };
+                    }
+                } catch (e) {}
+            }
+
+            function saveScore() {
+                try { localStorage.setItem(SCORE_KEY, JSON.stringify(sessionScore)); } catch (e) {}
+            }
+
+            function updateScoreDisplay() {
+                correctCountEl.textContent = sessionScore.correct;
+                wrongCountEl.textContent = sessionScore.wrong;
+                streakCountEl.textContent = sessionScore.streak;
+            }
+
+            function showToast(msg) {
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.textContent = msg;
+                toastContainer.appendChild(toast);
+                setTimeout(() => toast.remove(), 2500);
+            }
+
+            function resetSessionScore() {
+                sessionScore = { correct: 0, wrong: 0, streak: 0, bestStreak: 0 };
+                updateScoreDisplay();
+                saveScore();
+                showToast('🔄 Session score reset');
+            }
+
+            // ==================== SPEECH ====================
+            function speakWord(word) {
+                return new Promise((resolve, reject) => {
+                    if (!('speechSynthesis' in window)) {
+                        reject(new Error('Speech not supported'));
+                        return;
+                    }
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(word);
+                    utterance.lang = 'en-US';
+                    utterance.rate = 0.85;
+                    utterance.pitch = 1;
+                    const voices = window.speechSynthesis.getVoices();
+                    const enVoice = voices.find(v => v.lang.startsWith('en-US') && v.name.includes('Google')) ||
+                        voices.find(v => v.lang.startsWith('en-US')) ||
+                        voices.find(v => v.lang.startsWith('en-'));
+                    if (enVoice) utterance.voice = enVoice;
+                    utterance.onend = resolve;
+                    utterance.onerror = reject;
+                    window.speechSynthesis.speak(utterance);
+                });
+            }
+
+            function preloadVoices() {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.getVoices();
+                    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+                }
+            }
+
+            // ==================== WORD SELECTION ====================
+            function getRandomWord() {
+                if (wordList.length === 0) return null;
+                return wordList[Math.floor(Math.random() * wordList.length)];
+            }
+
+            // ==================== PRACTICE MODE ====================
+            function loadPracticeWord() {
+                if (wordList.length === 0) {
+                    currentWordPractice = null;
+                    practiceFeedback.innerHTML = '<span style="color:#94a3b8;">📭 No words available.</span>';
+                    spellInput.value = '';
+                    spellInput.disabled = true;
+                    submitBtn.disabled = true;
+                    practiceNextBtn.disabled = true;
+                    return;
+                }
+                spellInput.disabled = false;
+                submitBtn.disabled = false;
+                practiceNextBtn.disabled = true;
+                currentWordPractice = getRandomWord();
+                practiceFeedback.innerHTML = '';
+                spellInput.value = '';
+                spellInput.className = 'spell-input';
+                spellInput.focus();
+                updateScoreDisplay();
+                speakCurrentPracticeWord();
+            }
+
+            async function speakCurrentPracticeWord() {
+                if (!currentWordPractice) return;
+                practiceSpeakerBtn.classList.add('speaking');
+                try { await speakWord(currentWordPractice.word); } catch (e) {} finally { practiceSpeakerBtn
+                        .classList.remove('speaking'); }
+            }
+
+            function checkSpelling() {
+                if (!currentWordPractice || submitBtn.disabled) return;
+                const answer = spellInput.value.trim();
+                if (!answer) { spellInput.focus(); return; }
+                const isCorrect = answer.toLowerCase() === currentWordPractice.word.toLowerCase();
+                if (isCorrect) {
+                    spellInput.className = 'spell-input correct-flash';
+                    practiceFeedback.innerHTML = '<span class="feedback-correct">🎉 Correct!</span>';
+                    sessionScore.correct++;
+                    sessionScore.streak++;
+                    if (sessionScore.streak > sessionScore.bestStreak) sessionScore.bestStreak = sessionScore.streak;
+                } else {
+                    spellInput.className = 'spell-input wrong-flash';
+                    practiceFeedback.innerHTML =
+                        `<span class="feedback-wrong">❌ The correct spelling is: <span class="correct-spelling">${currentWordPractice.word}</span></span>`;
+                    sessionScore.wrong++;
+                    sessionScore.streak = 0;
+                }
+                updateScoreDisplay();
+                saveScore();
+                practiceNextBtn.disabled = false;
+                submitBtn.disabled = true;
+                spellInput.disabled = true;
+            }
+
+            // ==================== MCQ MODE ====================
+            function generateMisspellings(word) {
+                const lower = word.toLowerCase();
+                const results = new Set();
+                const attempts = 100;
+                const ops = ['delete', 'insert', 'change', 'swap'];
+
+                function applyOp(op) {
+                    if (op === 'delete' && lower.length > 3) {
+                        const pos = Math.floor(Math.random() * lower.length);
+                        return lower.slice(0, pos) + lower.slice(pos + 1);
+                    }
+                    if (op === 'insert' && lower.length > 1) {
+                        const letters = 'abcdefghijklmnopqrstuvwxyz';
+                        const ch = letters[Math.floor(Math.random() * 26)];
+                        const pos = Math.floor(Math.random() * (lower.length + 1));
+                        return lower.slice(0, pos) + ch + lower.slice(pos);
+                    }
+                    if (op === 'change' && lower.length > 0) {
+                        const letters = 'abcdefghijklmnopqrstuvwxyz';
+                        const pos = Math.floor(Math.random() * lower.length);
+                        let newCh = letters[Math.floor(Math.random() * 26)];
+                        while (newCh === lower[pos]) newCh = letters[Math.floor(Math.random() * 26)];
+                        return lower.slice(0, pos) + newCh + lower.slice(pos + 1);
+                    }
+                    if (op === 'swap' && lower.length > 2) {
+                        const pos = Math.floor(Math.random() * (lower.length - 1));
+                        return lower.slice(0, pos) + lower[pos + 1] + lower[pos] + lower.slice(pos + 2);
+                    }
+                    return null;
+                }
+
+                while (results.size < 3) {
+                    const op = ops[Math.floor(Math.random() * ops.length)];
+                    const misspelled = applyOp(op);
+                    if (misspelled && misspelled !== lower && !results.has(misspelled)) {
+                        results.add(misspelled);
+                    }
+                }
+                const arr = [...results];
+                while (arr.length < 3) arr.push(lower + 'x');
+                return arr.slice(0, 3);
+            }
+
+            function shuffleArray(arr) {
+                for (let i = arr.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [arr[i], arr[j]] = [arr[j], arr[i]];
+                }
+                return arr;
+            }
+
+            function loadMcqWord() {
+                if (wordList.length === 0) {
+                    currentWordMcq = null;
+                    mcqFeedback.innerHTML = '<span style="color:#94a3b8;">📭 No words available.</span>';
+                    mcqOptionsDiv.innerHTML = '';
+                    mcqNextBtn.disabled = true;
+                    return;
+                }
+                mcqNextBtn.disabled = true;
+                mcqAnswered = false;
+                currentWordMcq = getRandomWord();
+                mcqFeedback.innerHTML = '';
+                const correct = currentWordMcq.word;
+                const misspellings = generateMisspellings(correct);
+                // Create options: correct + 3 misspellings, then shuffle
+                const options = shuffleArray([correct.toLowerCase(), ...misspellings]);
+                mcqOptionsDiv.innerHTML = options.map(opt =>
+                    `<button class="mcq-option-btn" data-word="${opt}">${opt}</button>`
+                ).join('');
+                // Attach event listeners
+                document.querySelectorAll('.mcq-option-btn').forEach(btn => {
+                    btn.addEventListener('click', () => handleMcqChoice(btn, correct));
+                });
+                updateScoreDisplay();
+                speakCurrentMcqWord();
+            }
+
+            async function speakCurrentMcqWord() {
+                if (!currentWordMcq) return;
+                mcqSpeakerBtn.classList.add('speaking');
+                try { await speakWord(currentWordMcq.word); } catch (e) {} finally { mcqSpeakerBtn.classList.remove(
+                        'speaking'); }
+            }
+
+            function handleMcqChoice(clickedBtn, correctWord) {
+                if (mcqAnswered) return;
+                mcqAnswered = true;
+                const selected = clickedBtn.dataset.word;
+                const isCorrect = selected === correctWord.toLowerCase();
+                // Highlight correct button
+                const allBtns = document.querySelectorAll('.mcq-option-btn');
+                allBtns.forEach(btn => {
+                    btn.disabled = true;
+                    if (btn.dataset.word === correctWord.toLowerCase()) {
+                        btn.classList.add('option-correct');
+                    }
+                });
+                if (isCorrect) {
+                    clickedBtn.classList.add('option-correct');
+                    mcqFeedback.innerHTML = '<span class="feedback-correct">🎉 Correct!</span>';
+                    sessionScore.correct++;
+                    sessionScore.streak++;
+                    if (sessionScore.streak > sessionScore.bestStreak) sessionScore.bestStreak = sessionScore.streak;
+                } else {
+                    clickedBtn.classList.add('option-incorrect');
+                    mcqFeedback.innerHTML =
+                        `<span class="feedback-wrong">❌ The correct spelling is: <span class="correct-spelling">${correctWord}</span></span>`;
+                    sessionScore.wrong++;
+                    sessionScore.streak = 0;
+                }
+                updateScoreDisplay();
+                saveScore();
+                mcqNextBtn.disabled = false;
+            }
+
+            // ==================== TAB SWITCHING ====================
+            function switchTab(tabName) {
+                activeTab = tabName;
+                tabBtns.forEach(b => b.classList.remove('active'));
+                document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+                practiceView.classList.remove('active');
+                mcqView.classList.remove('active');
+                if (tabName === 'practice') {
+                    practiceView.classList.add('active');
+                    if (!currentWordPractice && wordList.length > 0) loadPracticeWord();
+                    else if (wordList.length === 0) loadPracticeWord();
+                } else {
+                    mcqView.classList.add('active');
+                    if (!currentWordMcq && wordList.length > 0) loadMcqWord();
+                    else if (wordList.length === 0) loadMcqWord();
+                }
+                window.speechSynthesis.cancel();
+            }
+
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+            });
+
+            // ==================== EVENT LISTENERS ====================
+            // Practice
+            practiceSpeakerBtn.addEventListener('click', speakCurrentPracticeWord);
+            practiceListenAgainBtn.addEventListener('click', speakCurrentPracticeWord);
+            submitBtn.addEventListener('click', checkSpelling);
+            spellInput.addEventListener('keydown', e => {
+                if (e.key === 'Enter') { e.preventDefault();
+                    checkSpelling(); }
+            });
+            practiceNextBtn.addEventListener('click', loadPracticeWord);
+
+            // MCQ
+            mcqSpeakerBtn.addEventListener('click', speakCurrentMcqWord);
+            mcqListenAgainBtn.addEventListener('click', speakCurrentMcqWord);
+            mcqNextBtn.addEventListener('click', loadMcqWord);
+
+            // Reset score on title double-click
+            document.querySelector('.app-title').addEventListener('dblclick', resetSessionScore);
+            document.addEventListener('keydown', e => {
+                if (e.ctrlKey && e.shiftKey && e.key === 'R') {
+                    e.preventDefault();
+                    resetSessionScore();
+                }
+            });
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden && 'speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    practiceSpeakerBtn.classList.remove('speaking');
+                    mcqSpeakerBtn.classList.remove('speaking');
+                }
+            });
+
+            // ==================== INIT ====================
+            preloadVoices();
+            loadWordList();
+            loadScore();
+            updateScoreDisplay();
+            // Start with practice tab
+            switchTab('practice');
+        })();
+    </script>
+</body>
+</html>
+
