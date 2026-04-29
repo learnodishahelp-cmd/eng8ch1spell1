@@ -16,8 +16,6 @@
             --success-light: #d1fae5;
             --danger: #ef4444;
             --danger-light: #fee2e2;
-            --warning: #f59e0b;
-            --warning-light: #fef3c7;
             --text: #1e293b;
             --text-secondary: #64748b;
             --text-muted: #94a3b8;
@@ -85,44 +83,22 @@
         .app-title .icon {
             font-size: 1.8rem;
         }
-        .score-pills {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
         .score-pill {
-            padding: 8px 14px;
+            padding: 10px 18px;
             border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.9rem;
+            font-weight: 700;
+            font-size: 1rem;
+            background: var(--primary-light);
+            color: var(--primary);
+            border: 2px solid #c7d2fe;
             display: flex;
             align-items: center;
             gap: 6px;
-            letter-spacing: -0.2px;
-            transition: var(--transition);
-            border: 2px solid transparent;
         }
-        .score-pill.correct-pill {
-            background: var(--success-light);
-            color: #065f46;
-            border-color: #a7f3d0;
-        }
-        .score-pill.wrong-pill {
-            background: var(--danger-light);
-            color: #991b1b;
-            border-color: #fecaca;
-        }
-        .score-pill.streak-pill {
-            background: var(--warning-light);
-            color: #92400e;
-            border-color: #fde68a;
-        }
-        .score-pill .pill-num {
-            font-size: 1.2rem;
-            font-weight: 700;
+        .score-pill .score-value {
+            font-size: 1.3rem;
         }
 
-        /* Tab navigation */
         .tab-nav {
             display: flex;
             gap: 4px;
@@ -165,7 +141,6 @@
             border: 1px solid var(--border);
             min-height: 400px;
         }
-
         .view {
             display: none;
             animation: fadeSlideIn 0.3s ease;
@@ -238,7 +213,6 @@
             font-size: 0.85rem;
             color: var(--text-secondary);
             font-weight: 500;
-            margin-top: 4px;
         }
 
         .input-group {
@@ -486,13 +460,6 @@
             .app-title {
                 font-size: 1.3rem;
             }
-            .score-pill {
-                padding: 6px 10px;
-                font-size: 0.78rem;
-            }
-            .score-pill .pill-num {
-                font-size: 1rem;
-            }
             .main-content {
                 padding: 16px;
             }
@@ -524,10 +491,8 @@
             <div class="app-title">
                 <span class="icon">📝</span> SpellMaster
             </div>
-            <div class="score-pills">
-                <span class="score-pill correct-pill">✅ <span class="pill-num" id="correctCount">0</span></span>
-                <span class="score-pill wrong-pill">❌ <span class="pill-num" id="wrongCount">0</span></span>
-                <span class="score-pill streak-pill">🔥 <span class="pill-num" id="streakCount">0</span></span>
+            <div class="score-pill" id="scorePill">
+                🏆 Score: <span class="score-value" id="scoreText">0</span> / <span id="totalWords">0</span>
             </div>
         </header>
 
@@ -552,6 +517,7 @@
                     <div class="action-row">
                         <button class="btn btn-ghost btn-sm" id="practiceListenAgainBtn">🔁 Listen Again</button>
                         <button class="btn btn-outline btn-sm" id="practiceNextBtn" disabled>⏭ Next Word</button>
+                        <button class="btn btn-ghost btn-sm" id="practiceRestartBtn">🔄 Restart</button>
                     </div>
                     <div class="feedback-area" id="practiceFeedback"></div>
                 </div>
@@ -565,11 +531,12 @@
                     </div>
                     <span class="speaker-label">Listen and choose the correct spelling</span>
                     <div class="mcq-options" id="mcqOptions">
-                        <!-- dynamically filled -->
+                        <!-- dynamic -->
                     </div>
                     <div class="action-row">
                         <button class="btn btn-ghost btn-sm" id="mcqListenAgainBtn">🔁 Listen Again</button>
                         <button class="btn btn-outline btn-sm" id="mcqNextBtn" disabled>⏭ Next Word</button>
+                        <button class="btn btn-ghost btn-sm" id="mcqRestartBtn">🔄 Restart</button>
                     </div>
                     <div class="feedback-area" id="mcqFeedback"></div>
                 </div>
@@ -585,39 +552,40 @@
             const practiceView = document.getElementById('view-practice');
             const mcqView = document.getElementById('view-mcq');
 
-            // Practice elements
+            // Practice
             const practiceSpeakerBtn = document.getElementById('practiceSpeakerBtn');
             const spellInput = document.getElementById('spellInput');
             const submitBtn = document.getElementById('submitBtn');
             const practiceListenAgainBtn = document.getElementById('practiceListenAgainBtn');
             const practiceNextBtn = document.getElementById('practiceNextBtn');
+            const practiceRestartBtn = document.getElementById('practiceRestartBtn');
             const practiceFeedback = document.getElementById('practiceFeedback');
 
-            // MCQ elements
+            // MCQ
             const mcqSpeakerBtn = document.getElementById('mcqSpeakerBtn');
             const mcqOptionsDiv = document.getElementById('mcqOptions');
             const mcqListenAgainBtn = document.getElementById('mcqListenAgainBtn');
             const mcqNextBtn = document.getElementById('mcqNextBtn');
+            const mcqRestartBtn = document.getElementById('mcqRestartBtn');
             const mcqFeedback = document.getElementById('mcqFeedback');
 
-            // Score elements
-            const correctCountEl = document.getElementById('correctCount');
-            const wrongCountEl = document.getElementById('wrongCount');
-            const streakCountEl = document.getElementById('streakCount');
+            // Score
+            const scoreText = document.getElementById('scoreText');
+            const totalWordsEl = document.getElementById('totalWords');
             const toastContainer = document.getElementById('toastContainer');
 
             // ==================== STATE ====================
-            const STORAGE_KEY = 'spellmaster_wordlist_simple';
-            const SCORE_KEY = 'spellmaster_score';
+            const STORAGE_KEY = 'spellmaster_wordlist_serial';
+            const SCORE_KEY = 'spellmaster_score_serial';
 
             let wordList = [];
-            let sessionScore = { correct: 0, wrong: 0, streak: 0, bestStreak: 0 };
-            let activeTab = 'practice'; // 'practice' or 'mcq'
-            let currentWordPractice = null;
-            let currentWordMcq = null;
-            let mcqAnswered = false;
+            let activeTab = 'practice';
 
-            // Default words
+            // Separate states for each mode
+            const practiceState = { index: 0, correctCount: 0, gameOver: false };
+            const mcqState = { index: 0, correctCount: 0, gameOver: false };
+
+            // Default words (the list you can edit frequently)
             const defaultWords = [
                 { word: 'frustration', hint: 'Pleasing to the eye; very attractive' },
                 { word: 'collectively', hint: 'A very large mammal with a trunk' },
@@ -695,23 +663,12 @@
             }
 
             function loadScore() {
-                try {
-                    const data = localStorage.getItem(SCORE_KEY);
-                    if (data) {
-                        const parsed = JSON.parse(data);
-                        sessionScore = { ...sessionScore, ...parsed };
-                    }
-                } catch (e) {}
+                // We don't persist game state, only the word list
             }
 
-            function saveScore() {
-                try { localStorage.setItem(SCORE_KEY, JSON.stringify(sessionScore)); } catch (e) {}
-            }
-
-            function updateScoreDisplay() {
-                correctCountEl.textContent = sessionScore.correct;
-                wrongCountEl.textContent = sessionScore.wrong;
-                streakCountEl.textContent = sessionScore.streak;
+            function updateScoreDisplay(state) {
+                scoreText.textContent = state.correctCount;
+                totalWordsEl.textContent = wordList.length;
             }
 
             function showToast(msg) {
@@ -720,13 +677,6 @@
                 toast.textContent = msg;
                 toastContainer.appendChild(toast);
                 setTimeout(() => toast.remove(), 2500);
-            }
-
-            function resetSessionScore() {
-                sessionScore = { correct: 0, wrong: 0, streak: 0, bestStreak: 0 };
-                updateScoreDisplay();
-                saveScore();
-                showToast('🔄 Session score reset');
             }
 
             // ==================== SPEECH ====================
@@ -759,102 +709,116 @@
                 }
             }
 
-            // ==================== WORD SELECTION ====================
-            function getRandomWord() {
-                if (wordList.length === 0) return null;
-                return wordList[Math.floor(Math.random() * wordList.length)];
+            // ==================== HELPERS ====================
+            function getCurrentWord(state) {
+                if (wordList.length === 0 || state.index >= wordList.length) return null;
+                return wordList[state.index];
+            }
+
+            function gameOverMessage(state) {
+                return `🎯 Game Over! You got ${state.correctCount} out of ${wordList.length} correct.`;
             }
 
             // ==================== PRACTICE MODE ====================
             function loadPracticeWord() {
                 if (wordList.length === 0) {
-                    currentWordPractice = null;
-                    practiceFeedback.innerHTML = '<span style="color:#94a3b8;">📭 No words available.</span>';
-                    spellInput.value = '';
+                    practiceFeedback.innerHTML = '<span style="color:#94a3b8;">📭 No words in the list.</span>';
                     spellInput.disabled = true;
                     submitBtn.disabled = true;
                     practiceNextBtn.disabled = true;
                     return;
                 }
+                if (practiceState.index >= wordList.length) {
+                    practiceState.gameOver = true;
+                    practiceFeedback.innerHTML = gameOverMessage(practiceState);
+                    spellInput.disabled = true;
+                    submitBtn.disabled = true;
+                    practiceNextBtn.disabled = true;
+                    practiceSpeakerBtn.style.pointerEvents = 'none';
+                    return;
+                }
+                // Normal load
+                practiceState.gameOver = false;
+                const wordObj = getCurrentWord(practiceState);
                 spellInput.disabled = false;
                 submitBtn.disabled = false;
-                practiceNextBtn.disabled = true;
-                currentWordPractice = getRandomWord();
-                practiceFeedback.innerHTML = '';
+                practiceNextBtn.disabled = true;  // enabled after answer
                 spellInput.value = '';
                 spellInput.className = 'spell-input';
+                practiceFeedback.innerHTML = '';
+                practiceSpeakerBtn.style.pointerEvents = 'auto';
+                updateScoreDisplay(practiceState);
                 spellInput.focus();
-                updateScoreDisplay();
-                speakCurrentPracticeWord();
+                speakWord(wordObj.word);
             }
 
             async function speakCurrentPracticeWord() {
-                if (!currentWordPractice) return;
+                const wordObj = getCurrentWord(practiceState);
+                if (!wordObj) return;
                 practiceSpeakerBtn.classList.add('speaking');
-                try { await speakWord(currentWordPractice.word); } catch (e) {} finally { practiceSpeakerBtn
-                        .classList.remove('speaking'); }
+                try { await speakWord(wordObj.word); } catch (e) {} finally { practiceSpeakerBtn.classList.remove('speaking'); }
             }
 
             function checkSpelling() {
-                if (!currentWordPractice || submitBtn.disabled) return;
+                if (practiceState.gameOver || !getCurrentWord(practiceState)) return;
                 const answer = spellInput.value.trim();
                 if (!answer) { spellInput.focus(); return; }
-                const isCorrect = answer.toLowerCase() === currentWordPractice.word.toLowerCase();
+                const correctWord = getCurrentWord(practiceState).word;
+                const isCorrect = answer.toLowerCase() === correctWord.toLowerCase();
                 if (isCorrect) {
                     spellInput.className = 'spell-input correct-flash';
                     practiceFeedback.innerHTML = '<span class="feedback-correct">🎉 Correct!</span>';
-                    sessionScore.correct++;
-                    sessionScore.streak++;
-                    if (sessionScore.streak > sessionScore.bestStreak) sessionScore.bestStreak = sessionScore.streak;
+                    practiceState.correctCount++;
                 } else {
                     spellInput.className = 'spell-input wrong-flash';
-                    practiceFeedback.innerHTML =
-                        `<span class="feedback-wrong">❌ The correct spelling is: <span class="correct-spelling">${currentWordPractice.word}</span></span>`;
-                    sessionScore.wrong++;
-                    sessionScore.streak = 0;
+                    practiceFeedback.innerHTML = `<span class="feedback-wrong">❌ The correct spelling is: <span class="correct-spelling">${correctWord}</span></span>`;
                 }
-                updateScoreDisplay();
-                saveScore();
-                practiceNextBtn.disabled = false;
+                updateScoreDisplay(practiceState);
                 submitBtn.disabled = true;
                 spellInput.disabled = true;
+                practiceNextBtn.disabled = false;
+            }
+
+            function practiceNext() {
+                if (practiceState.index < wordList.length) {
+                    practiceState.index++;
+                    loadPracticeWord();
+                }
+            }
+
+            function practiceRestart() {
+                practiceState.index = 0;
+                practiceState.correctCount = 0;
+                practiceState.gameOver = false;
+                loadPracticeWord();
             }
 
             // ==================== MCQ MODE ====================
             function generateMisspellings(word) {
                 const lower = word.toLowerCase();
                 const results = new Set();
-                const attempts = 100;
                 const ops = ['delete', 'insert', 'change', 'swap'];
-
-                function applyOp(op) {
+                while (results.size < 3) {
+                    const op = ops[Math.floor(Math.random() * ops.length)];
+                    let misspelled = null;
                     if (op === 'delete' && lower.length > 3) {
                         const pos = Math.floor(Math.random() * lower.length);
-                        return lower.slice(0, pos) + lower.slice(pos + 1);
-                    }
-                    if (op === 'insert' && lower.length > 1) {
+                        misspelled = lower.slice(0, pos) + lower.slice(pos + 1);
+                    } else if (op === 'insert' && lower.length > 1) {
                         const letters = 'abcdefghijklmnopqrstuvwxyz';
                         const ch = letters[Math.floor(Math.random() * 26)];
                         const pos = Math.floor(Math.random() * (lower.length + 1));
-                        return lower.slice(0, pos) + ch + lower.slice(pos);
-                    }
-                    if (op === 'change' && lower.length > 0) {
+                        misspelled = lower.slice(0, pos) + ch + lower.slice(pos);
+                    } else if (op === 'change' && lower.length > 0) {
                         const letters = 'abcdefghijklmnopqrstuvwxyz';
                         const pos = Math.floor(Math.random() * lower.length);
                         let newCh = letters[Math.floor(Math.random() * 26)];
                         while (newCh === lower[pos]) newCh = letters[Math.floor(Math.random() * 26)];
-                        return lower.slice(0, pos) + newCh + lower.slice(pos + 1);
-                    }
-                    if (op === 'swap' && lower.length > 2) {
+                        misspelled = lower.slice(0, pos) + newCh + lower.slice(pos + 1);
+                    } else if (op === 'swap' && lower.length > 2) {
                         const pos = Math.floor(Math.random() * (lower.length - 1));
-                        return lower.slice(0, pos) + lower[pos + 1] + lower[pos] + lower.slice(pos + 2);
+                        misspelled = lower.slice(0, pos) + lower[pos + 1] + lower[pos] + lower.slice(pos + 2);
                     }
-                    return null;
-                }
-
-                while (results.size < 3) {
-                    const op = ops[Math.floor(Math.random() * ops.length)];
-                    const misspelled = applyOp(op);
                     if (misspelled && misspelled !== lower && !results.has(misspelled)) {
                         results.add(misspelled);
                     }
@@ -874,46 +838,50 @@
 
             function loadMcqWord() {
                 if (wordList.length === 0) {
-                    currentWordMcq = null;
-                    mcqFeedback.innerHTML = '<span style="color:#94a3b8;">📭 No words available.</span>';
+                    mcqFeedback.innerHTML = '<span style="color:#94a3b8;">📭 No words in the list.</span>';
                     mcqOptionsDiv.innerHTML = '';
                     mcqNextBtn.disabled = true;
                     return;
                 }
-                mcqNextBtn.disabled = true;
-                mcqAnswered = false;
-                currentWordMcq = getRandomWord();
-                mcqFeedback.innerHTML = '';
-                const correct = currentWordMcq.word;
+                if (mcqState.index >= wordList.length) {
+                    mcqState.gameOver = true;
+                    mcqFeedback.innerHTML = gameOverMessage(mcqState);
+                    mcqOptionsDiv.innerHTML = '';
+                    mcqNextBtn.disabled = true;
+                    mcqSpeakerBtn.style.pointerEvents = 'none';
+                    return;
+                }
+                mcqState.gameOver = false;
+                const wordObj = wordList[mcqState.index];
+                const correct = wordObj.word;
                 const misspellings = generateMisspellings(correct);
-                // Create options: correct + 3 misspellings, then shuffle
                 const options = shuffleArray([correct.toLowerCase(), ...misspellings]);
                 mcqOptionsDiv.innerHTML = options.map(opt =>
                     `<button class="mcq-option-btn" data-word="${opt}">${opt}</button>`
                 ).join('');
-                // Attach event listeners
                 document.querySelectorAll('.mcq-option-btn').forEach(btn => {
                     btn.addEventListener('click', () => handleMcqChoice(btn, correct));
                 });
-                updateScoreDisplay();
-                speakCurrentMcqWord();
+                mcqFeedback.innerHTML = '';
+                mcqNextBtn.disabled = true;
+                mcqSpeakerBtn.style.pointerEvents = 'auto';
+                updateScoreDisplay(mcqState);
+                speakWord(correct);
             }
 
             async function speakCurrentMcqWord() {
-                if (!currentWordMcq) return;
+                const wordObj = getCurrentWord(mcqState);
+                if (!wordObj) return;
                 mcqSpeakerBtn.classList.add('speaking');
-                try { await speakWord(currentWordMcq.word); } catch (e) {} finally { mcqSpeakerBtn.classList.remove(
-                        'speaking'); }
+                try { await speakWord(wordObj.word); } catch (e) {} finally { mcqSpeakerBtn.classList.remove('speaking'); }
             }
 
             function handleMcqChoice(clickedBtn, correctWord) {
-                if (mcqAnswered) return;
-                mcqAnswered = true;
+                if (mcqState.gameOver || mcqNextBtn.disabled === false) return; // avoid double answer
                 const selected = clickedBtn.dataset.word;
                 const isCorrect = selected === correctWord.toLowerCase();
-                // Highlight correct button
-                const allBtns = document.querySelectorAll('.mcq-option-btn');
-                allBtns.forEach(btn => {
+                // Highlight correct button and disable all
+                document.querySelectorAll('.mcq-option-btn').forEach(btn => {
                     btn.disabled = true;
                     if (btn.dataset.word === correctWord.toLowerCase()) {
                         btn.classList.add('option-correct');
@@ -922,19 +890,27 @@
                 if (isCorrect) {
                     clickedBtn.classList.add('option-correct');
                     mcqFeedback.innerHTML = '<span class="feedback-correct">🎉 Correct!</span>';
-                    sessionScore.correct++;
-                    sessionScore.streak++;
-                    if (sessionScore.streak > sessionScore.bestStreak) sessionScore.bestStreak = sessionScore.streak;
+                    mcqState.correctCount++;
                 } else {
                     clickedBtn.classList.add('option-incorrect');
-                    mcqFeedback.innerHTML =
-                        `<span class="feedback-wrong">❌ The correct spelling is: <span class="correct-spelling">${correctWord}</span></span>`;
-                    sessionScore.wrong++;
-                    sessionScore.streak = 0;
+                    mcqFeedback.innerHTML = `<span class="feedback-wrong">❌ The correct spelling is: <span class="correct-spelling">${correctWord}</span></span>`;
                 }
-                updateScoreDisplay();
-                saveScore();
+                updateScoreDisplay(mcqState);
                 mcqNextBtn.disabled = false;
+            }
+
+            function mcqNext() {
+                if (mcqState.index < wordList.length) {
+                    mcqState.index++;
+                    loadMcqWord();
+                }
+            }
+
+            function mcqRestart() {
+                mcqState.index = 0;
+                mcqState.correctCount = 0;
+                mcqState.gameOver = false;
+                loadMcqWord();
             }
 
             // ==================== TAB SWITCHING ====================
@@ -946,12 +922,10 @@
                 mcqView.classList.remove('active');
                 if (tabName === 'practice') {
                     practiceView.classList.add('active');
-                    if (!currentWordPractice && wordList.length > 0) loadPracticeWord();
-                    else if (wordList.length === 0) loadPracticeWord();
+                    loadPracticeWord();
                 } else {
                     mcqView.classList.add('active');
-                    if (!currentWordMcq && wordList.length > 0) loadMcqWord();
-                    else if (wordList.length === 0) loadMcqWord();
+                    loadMcqWord();
                 }
                 window.speechSynthesis.cancel();
             }
@@ -966,24 +940,18 @@
             practiceListenAgainBtn.addEventListener('click', speakCurrentPracticeWord);
             submitBtn.addEventListener('click', checkSpelling);
             spellInput.addEventListener('keydown', e => {
-                if (e.key === 'Enter') { e.preventDefault();
-                    checkSpelling(); }
+                if (e.key === 'Enter') { e.preventDefault(); checkSpelling(); }
             });
-            practiceNextBtn.addEventListener('click', loadPracticeWord);
+            practiceNextBtn.addEventListener('click', practiceNext);
+            practiceRestartBtn.addEventListener('click', practiceRestart);
 
             // MCQ
             mcqSpeakerBtn.addEventListener('click', speakCurrentMcqWord);
             mcqListenAgainBtn.addEventListener('click', speakCurrentMcqWord);
-            mcqNextBtn.addEventListener('click', loadMcqWord);
+            mcqNextBtn.addEventListener('click', mcqNext);
+            mcqRestartBtn.addEventListener('click', mcqRestart);
 
-            // Reset score on title double-click
-            document.querySelector('.app-title').addEventListener('dblclick', resetSessionScore);
-            document.addEventListener('keydown', e => {
-                if (e.ctrlKey && e.shiftKey && e.key === 'R') {
-                    e.preventDefault();
-                    resetSessionScore();
-                }
-            });
+            // Cancel speech on visibility change
             document.addEventListener('visibilitychange', () => {
                 if (document.hidden && 'speechSynthesis' in window) {
                     window.speechSynthesis.cancel();
@@ -995,12 +963,9 @@
             // ==================== INIT ====================
             preloadVoices();
             loadWordList();
-            loadScore();
-            updateScoreDisplay();
-            // Start with practice tab
+            // Initial load for practice tab (active default)
             switchTab('practice');
         })();
     </script>
 </body>
 </html>
-
