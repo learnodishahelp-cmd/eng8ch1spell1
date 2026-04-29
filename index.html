@@ -16,6 +16,8 @@
             --success-light: #d1fae5;
             --danger: #ef4444;
             --danger-light: #fee2e2;
+            --warning: #f59e0b;
+            --warning-light: #fef3c7;
             --text: #1e293b;
             --text-secondary: #64748b;
             --text-muted: #94a3b8;
@@ -149,14 +151,8 @@
             display: block;
         }
         @keyframes fadeSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .practice-area {
@@ -197,13 +193,8 @@
             background: #e0e7ff;
         }
         @keyframes pulseSpeaker {
-            0%,
-            100% {
-                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4);
-            }
-            50% {
-                box-shadow: 0 0 0 24px rgba(79, 70, 229, 0);
-            }
+            0%, 100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4); }
+            50% { box-shadow: 0 0 0 24px rgba(79, 70, 229, 0); }
         }
         .speaker-icon {
             font-size: 4rem;
@@ -222,8 +213,10 @@
             max-width: 420px;
             flex-wrap: wrap;
             justify-content: center;
+            align-items: center;
         }
-        .spell-input {
+        .spell-input,
+        .correction-input {
             flex: 1;
             min-width: 200px;
             padding: 14px 18px;
@@ -237,49 +230,36 @@
             background: var(--surface-alt);
             color: var(--text);
         }
-        .spell-input:focus {
+        .spell-input:focus,
+        .correction-input:focus {
             border-color: var(--border-focus);
             box-shadow: 0 0 0 3px rgba(165, 180, 252, 0.3);
             background: #fff;
         }
-        .spell-input.correct-flash {
+        .spell-input.correct-flash,
+        .correction-input.correct-flash {
             border-color: var(--success) !important;
             background: var(--success-light) !important;
             box-shadow: 0 0 0 8px rgba(16, 185, 129, 0.15) !important;
             animation: correctPulse 0.5s ease;
         }
-        .spell-input.wrong-flash {
+        .spell-input.wrong-flash,
+        .correction-input.wrong-flash {
             border-color: var(--danger) !important;
             background: var(--danger-light) !important;
             box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.15) !important;
             animation: shake 0.5s ease;
         }
         @keyframes correctPulse {
-            0%,
-            100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.03);
-            }
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
         }
         @keyframes shake {
-            0%,
-            100% {
-                transform: translateX(0);
-            }
-            20% {
-                transform: translateX(-8px);
-            }
-            40% {
-                transform: translateX(8px);
-            }
-            60% {
-                transform: translateX(-5px);
-            }
-            80% {
-                transform: translateX(5px);
-            }
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
         }
 
         .btn {
@@ -350,11 +330,13 @@
         .feedback-area {
             min-height: 50px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             font-weight: 600;
             font-size: 1rem;
             transition: var(--transition);
+            gap: 6px;
         }
         .feedback-correct {
             color: #065f46;
@@ -371,8 +353,12 @@
             text-decoration: underline;
             text-underline-offset: 4px;
         }
+        .correction-counter {
+            font-size: 0.9rem;
+            color: var(--warning);
+            font-weight: 600;
+        }
 
-        /* MCQ options */
         .mcq-options {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -412,9 +398,7 @@
             pointer-events: none;
         }
         @media (max-width: 500px) {
-            .mcq-options {
-                grid-template-columns: 1fr;
-            }
+            .mcq-options { grid-template-columns: 1fr; }
         }
 
         .toast {
@@ -434,64 +418,31 @@
             pointer-events: none;
         }
         @keyframes toastIn {
-            from {
-                opacity: 0;
-                transform: translateX(-50%) translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(-50%) translateY(0);
-            }
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
         }
         @keyframes toastOut {
-            from {
-                opacity: 1;
-            }
-            to {
-                opacity: 0;
-                transform: translateX(-50%) translateY(-10px);
-            }
+            from { opacity: 1; }
+            to { opacity: 0; transform: translateX(-50%) translateY(-10px); }
         }
         @media (max-width: 500px) {
-            .app-header {
-                padding: 14px 16px;
-                gap: 8px;
-            }
-            .app-title {
-                font-size: 1.3rem;
-            }
-            .main-content {
-                padding: 16px;
-            }
-            .speaker-card {
-                width: 110px;
-                height: 110px;
-            }
-            .speaker-icon {
-                font-size: 3rem;
-            }
-            .spell-input {
-                font-size: 1rem;
-                padding: 12px 14px;
-            }
-            .btn {
-                padding: 10px 16px;
-                font-size: 0.85rem;
-            }
-            .tab-btn {
-                padding: 10px 14px;
-                font-size: 0.85rem;
-            }
+            .app-header { padding: 14px 16px; gap: 8px; }
+            .app-title { font-size: 1.3rem; }
+            .main-content { padding: 16px; }
+            .speaker-card { width: 110px; height: 110px; }
+            .speaker-icon { font-size: 3rem; }
+            .spell-input,
+            .correction-input { font-size: 1rem; padding: 12px 14px; }
+            .btn { padding: 10px 16px; font-size: 0.85rem; }
+            .tab-btn { padding: 10px 14px; font-size: 0.85rem; }
         }
     </style>
 </head>
 <body>
     <div class="app-container">
         <header class="app-header">
-            <div class="app-title">
-                <span class="icon">📝</span> SpellMaster
-            </div>
-            <div class="score-pill" id="scorePill">
+            <div class="app-title"><span class="icon">📝</span> SpellMaster</div>
+            <div class="score-pill">
                 🏆 Score: <span class="score-value" id="scoreText">0</span> / <span id="totalWords">0</span>
             </div>
         </header>
@@ -509,10 +460,11 @@
                         <span class="speaker-icon">🔊</span>
                     </div>
                     <span class="speaker-label">Click the speaker to hear the word</span>
-                    <div class="input-group">
+                    <div class="input-group" id="practiceInputGroup">
                         <input type="text" class="spell-input" id="spellInput" placeholder="Type the spelling here..."
                         autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
                         <button class="btn btn-primary" id="submitBtn">✓ Check</button>
+                        <button class="btn btn-primary btn-sm" id="practiceCorrectionCheckBtn" style="display: none;">✓</button>
                     </div>
                     <div class="action-row">
                         <button class="btn btn-ghost btn-sm" id="practiceListenAgainBtn">🔁 Listen Again</button>
@@ -530,8 +482,11 @@
                         <span class="speaker-icon">🔊</span>
                     </div>
                     <span class="speaker-label">Listen and choose the correct spelling</span>
-                    <div class="mcq-options" id="mcqOptions">
-                        <!-- dynamic -->
+                    <div class="mcq-options" id="mcqOptions"></div>
+                    <div class="input-group" id="mcqCorrectionBox" style="display: none;">
+                        <input type="text" class="correction-input" id="mcqCorrectionInput" placeholder="Type the correct word..."
+                        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                        <button class="btn btn-primary btn-sm" id="mcqCorrectionCheckBtn">✓</button>
                     </div>
                     <div class="action-row">
                         <button class="btn btn-ghost btn-sm" id="mcqListenAgainBtn">🔁 Listen Again</button>
@@ -547,45 +502,58 @@
 
     <script>
         (function() {
-            // ==================== DOM ELEMENTS ====================
+            // DOM elements
             const tabBtns = document.querySelectorAll('.tab-btn');
             const practiceView = document.getElementById('view-practice');
             const mcqView = document.getElementById('view-mcq');
 
-            // Practice
+            // Practice elements
             const practiceSpeakerBtn = document.getElementById('practiceSpeakerBtn');
             const spellInput = document.getElementById('spellInput');
             const submitBtn = document.getElementById('submitBtn');
+            const practiceCorrectionCheckBtn = document.getElementById('practiceCorrectionCheckBtn');
             const practiceListenAgainBtn = document.getElementById('practiceListenAgainBtn');
             const practiceNextBtn = document.getElementById('practiceNextBtn');
             const practiceRestartBtn = document.getElementById('practiceRestartBtn');
             const practiceFeedback = document.getElementById('practiceFeedback');
 
-            // MCQ
+            // MCQ elements
             const mcqSpeakerBtn = document.getElementById('mcqSpeakerBtn');
             const mcqOptionsDiv = document.getElementById('mcqOptions');
             const mcqListenAgainBtn = document.getElementById('mcqListenAgainBtn');
             const mcqNextBtn = document.getElementById('mcqNextBtn');
             const mcqRestartBtn = document.getElementById('mcqRestartBtn');
             const mcqFeedback = document.getElementById('mcqFeedback');
+            const mcqCorrectionBox = document.getElementById('mcqCorrectionBox');
+            const mcqCorrectionInput = document.getElementById('mcqCorrectionInput');
+            const mcqCorrectionCheckBtn = document.getElementById('mcqCorrectionCheckBtn');
 
             // Score
             const scoreText = document.getElementById('scoreText');
             const totalWordsEl = document.getElementById('totalWords');
             const toastContainer = document.getElementById('toastContainer');
 
-            // ==================== STATE ====================
+            // State
             const STORAGE_KEY = 'spellmaster_wordlist_serial';
-            const SCORE_KEY = 'spellmaster_score_serial';
-
             let wordList = [];
             let activeTab = 'practice';
 
-            // Separate states for each mode
-            const practiceState = { index: 0, correctCount: 0, gameOver: false };
-            const mcqState = { index: 0, correctCount: 0, gameOver: false };
+            // Practice state
+            const practiceState = {
+                index: 0,
+                correctCount: 0,
+                gameOver: false,
+                correction: { active: false, correctWord: '', remaining: 0 }
+            };
+            // MCQ state
+            const mcqState = {
+                index: 0,
+                correctCount: 0,
+                gameOver: false,
+                correction: { active: false, correctWord: '', remaining: 0 }
+            };
 
-            // Default words (the list you can edit frequently)
+            // Default words (edit freely)
             const defaultWords = [
                 { word: 'frustration', hint: 'Pleasing to the eye; very attractive' },
                 { word: 'collectively', hint: 'A very large mammal with a trunk' },
@@ -642,7 +610,7 @@
                 { word: 'dawn', hint: 'Memory aid technique' }
             ];
 
-            // ==================== PERSISTENCE ====================
+            // Persistence
             function loadWordList() {
                 try {
                     const data = localStorage.getItem(STORAGE_KEY);
@@ -662,11 +630,7 @@
                 try { localStorage.setItem(STORAGE_KEY, JSON.stringify(wordList)); } catch (e) {}
             }
 
-            function loadScore() {
-                // We don't persist game state, only the word list
-            }
-
-            function updateScoreDisplay(state) {
+            function updateScore(state) {
                 scoreText.textContent = state.correctCount;
                 totalWordsEl.textContent = wordList.length;
             }
@@ -679,13 +643,10 @@
                 setTimeout(() => toast.remove(), 2500);
             }
 
-            // ==================== SPEECH ====================
+            // Speech
             function speakWord(word) {
-                return new Promise((resolve, reject) => {
-                    if (!('speechSynthesis' in window)) {
-                        reject(new Error('Speech not supported'));
-                        return;
-                    }
+                return new Promise((resolve) => {
+                    if (!('speechSynthesis' in window)) { resolve(); return; }
                     window.speechSynthesis.cancel();
                     const utterance = new SpeechSynthesisUtterance(word);
                     utterance.lang = 'en-US';
@@ -693,11 +654,10 @@
                     utterance.pitch = 1;
                     const voices = window.speechSynthesis.getVoices();
                     const enVoice = voices.find(v => v.lang.startsWith('en-US') && v.name.includes('Google')) ||
-                        voices.find(v => v.lang.startsWith('en-US')) ||
-                        voices.find(v => v.lang.startsWith('en-'));
+                        voices.find(v => v.lang.startsWith('en-US')) || voices.find(v => v.lang.startsWith('en-'));
                     if (enVoice) utterance.voice = enVoice;
                     utterance.onend = resolve;
-                    utterance.onerror = reject;
+                    utterance.onerror = resolve;
                     window.speechSynthesis.speak(utterance);
                 });
             }
@@ -709,58 +669,114 @@
                 }
             }
 
-            // ==================== HELPERS ====================
             function getCurrentWord(state) {
                 if (wordList.length === 0 || state.index >= wordList.length) return null;
                 return wordList[state.index];
             }
 
-            function gameOverMessage(state) {
-                return `🎯 Game Over! You got ${state.correctCount} out of ${wordList.length} correct.`;
+            // Correction handling
+            function handleCorrectionInput(event, state, nextBtn, feedbackEl, inputEl, checkBtn) {
+                if (!state.correction.active) return false;
+                if (event.key === 'Enter' || event.type === 'click') {
+                    const typed = inputEl.value.trim();
+                    const correct = state.correction.correctWord;
+                    if (typed.toLowerCase() === correct.toLowerCase()) {
+                        state.correction.remaining--;
+                        inputEl.value = '';
+                        inputEl.className = 'correction-input correct-flash';
+                        setTimeout(() => { inputEl.className = 'correction-input'; }, 400);
+                        if (state.correction.remaining <= 0) {
+                            state.correction.active = false;
+                            feedbackEl.innerHTML = '✅ Correction done! You can now proceed.';
+                            nextBtn.disabled = false;
+                            inputEl.disabled = true;
+                            if (checkBtn) checkBtn.style.display = 'none';
+                            if (submitBtn && state === practiceState) {
+                                submitBtn.style.display = 'none';
+                                practiceCorrectionCheckBtn.style.display = 'none';
+                            }
+                        } else {
+                            feedbackEl.innerHTML = `<span class="correction-counter">Type the correct word: ${state.correction.remaining}/4 remaining</span>`;
+                        }
+                    } else {
+                        inputEl.className = 'correction-input wrong-flash';
+                        inputEl.value = '';
+                        setTimeout(() => { inputEl.className = 'correction-input'; inputEl.focus(); }, 400);
+                    }
+                }
             }
 
-            // ==================== PRACTICE MODE ====================
+            function startCorrection(state, correctWord, nextBtn, feedbackEl, inputEl, checkBtn, mode) {
+                state.correction = { active: true, correctWord: correctWord, remaining: 4 };
+                nextBtn.disabled = true;
+                inputEl.disabled = false;
+                inputEl.value = '';
+                inputEl.className = 'correction-input';
+                if (mode === 'practice') {
+                    inputEl.placeholder = `Type "${correctWord}" to practice`;
+                    submitBtn.style.display = 'none';
+                    practiceCorrectionCheckBtn.style.display = 'inline-flex';
+                    feedbackEl.innerHTML = '<span class="correction-counter">Type the correct word: 4/4 remaining</span>';
+                } else if (mode === 'mcq') {
+                    inputEl.placeholder = `Type "${correctWord}" to practice`;
+                    mcqCorrectionBox.style.display = 'flex';
+                    if (checkBtn) checkBtn.style.display = 'inline-flex';
+                    feedbackEl.innerHTML = '<span class="correction-counter">Type the correct word: 4/4 remaining</span>';
+                }
+                inputEl.focus();
+            }
+
+            // Practice mode
             function loadPracticeWord() {
                 if (wordList.length === 0) {
                     practiceFeedback.innerHTML = '<span style="color:#94a3b8;">📭 No words in the list.</span>';
                     spellInput.disabled = true;
                     submitBtn.disabled = true;
                     practiceNextBtn.disabled = true;
+                    practiceCorrectionCheckBtn.style.display = 'none';
+                    submitBtn.style.display = 'inline-flex';
                     return;
                 }
                 if (practiceState.index >= wordList.length) {
                     practiceState.gameOver = true;
-                    practiceFeedback.innerHTML = gameOverMessage(practiceState);
+                    practiceFeedback.innerHTML = `🎯 Game Over! You got ${practiceState.correctCount} out of ${wordList.length} correct.`;
                     spellInput.disabled = true;
                     submitBtn.disabled = true;
                     practiceNextBtn.disabled = true;
                     practiceSpeakerBtn.style.pointerEvents = 'none';
+                    submitBtn.style.display = 'inline-flex';
+                    practiceCorrectionCheckBtn.style.display = 'none';
                     return;
                 }
-                // Normal load
+                // Reset correction state
+                practiceState.correction.active = false;
                 practiceState.gameOver = false;
                 const wordObj = getCurrentWord(practiceState);
                 spellInput.disabled = false;
                 submitBtn.disabled = false;
-                practiceNextBtn.disabled = true;  // enabled after answer
+                practiceNextBtn.disabled = true;
                 spellInput.value = '';
                 spellInput.className = 'spell-input';
+                spellInput.placeholder = 'Type the spelling here...';
                 practiceFeedback.innerHTML = '';
                 practiceSpeakerBtn.style.pointerEvents = 'auto';
-                updateScoreDisplay(practiceState);
+                submitBtn.style.display = 'inline-flex';
+                practiceCorrectionCheckBtn.style.display = 'none';
+                updateScore(practiceState);
                 spellInput.focus();
                 speakWord(wordObj.word);
             }
 
             async function speakCurrentPracticeWord() {
                 const wordObj = getCurrentWord(practiceState);
-                if (!wordObj) return;
+                if (!wordObj || practiceState.gameOver) return;
                 practiceSpeakerBtn.classList.add('speaking');
-                try { await speakWord(wordObj.word); } catch (e) {} finally { practiceSpeakerBtn.classList.remove('speaking'); }
+                await speakWord(wordObj.word);
+                practiceSpeakerBtn.classList.remove('speaking');
             }
 
             function checkSpelling() {
-                if (practiceState.gameOver || !getCurrentWord(practiceState)) return;
+                if (practiceState.gameOver || practiceState.correction.active || !getCurrentWord(practiceState)) return;
                 const answer = spellInput.value.trim();
                 if (!answer) { spellInput.focus(); return; }
                 const correctWord = getCurrentWord(practiceState).word;
@@ -769,31 +785,52 @@
                     spellInput.className = 'spell-input correct-flash';
                     practiceFeedback.innerHTML = '<span class="feedback-correct">🎉 Correct!</span>';
                     practiceState.correctCount++;
+                    updateScore(practiceState);
+                    submitBtn.disabled = true;
+                    spellInput.disabled = true;
+                    practiceNextBtn.disabled = false;
                 } else {
                     spellInput.className = 'spell-input wrong-flash';
                     practiceFeedback.innerHTML = `<span class="feedback-wrong">❌ The correct spelling is: <span class="correct-spelling">${correctWord}</span></span>`;
+                    // Immediately disable input and submit to prevent further attempts
+                    spellInput.disabled = true;
+                    submitBtn.disabled = true;
+                    setTimeout(() => {
+                        startCorrection(practiceState, correctWord, practiceNextBtn, practiceFeedback, spellInput, practiceCorrectionCheckBtn, 'practice');
+                    }, 600);
                 }
-                updateScoreDisplay(practiceState);
-                submitBtn.disabled = true;
-                spellInput.disabled = true;
-                practiceNextBtn.disabled = false;
             }
 
-            function practiceNext() {
+            // Event listeners for practice
+            spellInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (practiceState.correction.active) {
+                        handleCorrectionInput(e, practiceState, practiceNextBtn, practiceFeedback, spellInput, practiceCorrectionCheckBtn);
+                    } else {
+                        checkSpelling();
+                    }
+                }
+            });
+            submitBtn.addEventListener('click', checkSpelling);
+            practiceCorrectionCheckBtn.addEventListener('click', (e) => {
+                handleCorrectionInput(e, practiceState, practiceNextBtn, practiceFeedback, spellInput, practiceCorrectionCheckBtn);
+            });
+            practiceNextBtn.addEventListener('click', () => {
                 if (practiceState.index < wordList.length) {
                     practiceState.index++;
                     loadPracticeWord();
                 }
-            }
-
-            function practiceRestart() {
+            });
+            practiceRestartBtn.addEventListener('click', () => {
                 practiceState.index = 0;
                 practiceState.correctCount = 0;
                 practiceState.gameOver = false;
+                practiceState.correction.active = false;
                 loadPracticeWord();
-            }
+            });
 
-            // ==================== MCQ MODE ====================
+            // MCQ mode
             function generateMisspellings(word) {
                 const lower = word.toLowerCase();
                 const results = new Set();
@@ -819,21 +856,11 @@
                         const pos = Math.floor(Math.random() * (lower.length - 1));
                         misspelled = lower.slice(0, pos) + lower[pos + 1] + lower[pos] + lower.slice(pos + 2);
                     }
-                    if (misspelled && misspelled !== lower && !results.has(misspelled)) {
-                        results.add(misspelled);
-                    }
+                    if (misspelled && misspelled !== lower && !results.has(misspelled)) results.add(misspelled);
                 }
                 const arr = [...results];
                 while (arr.length < 3) arr.push(lower + 'x');
                 return arr.slice(0, 3);
-            }
-
-            function shuffleArray(arr) {
-                for (let i = arr.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [arr[i], arr[j]] = [arr[j], arr[i]];
-                }
-                return arr;
             }
 
             function loadMcqWord() {
@@ -841,21 +868,26 @@
                     mcqFeedback.innerHTML = '<span style="color:#94a3b8;">📭 No words in the list.</span>';
                     mcqOptionsDiv.innerHTML = '';
                     mcqNextBtn.disabled = true;
+                    mcqCorrectionBox.style.display = 'none';
                     return;
                 }
                 if (mcqState.index >= wordList.length) {
                     mcqState.gameOver = true;
-                    mcqFeedback.innerHTML = gameOverMessage(mcqState);
+                    mcqFeedback.innerHTML = `🎯 Game Over! You got ${mcqState.correctCount} out of ${wordList.length} correct.`;
                     mcqOptionsDiv.innerHTML = '';
                     mcqNextBtn.disabled = true;
                     mcqSpeakerBtn.style.pointerEvents = 'none';
+                    mcqCorrectionBox.style.display = 'none';
                     return;
                 }
+                // Reset correction
+                mcqState.correction.active = false;
                 mcqState.gameOver = false;
+                mcqCorrectionBox.style.display = 'none';
                 const wordObj = wordList[mcqState.index];
                 const correct = wordObj.word;
                 const misspellings = generateMisspellings(correct);
-                const options = shuffleArray([correct.toLowerCase(), ...misspellings]);
+                const options = [correct.toLowerCase(), ...misspellings].sort(() => Math.random() - 0.5);
                 mcqOptionsDiv.innerHTML = options.map(opt =>
                     `<button class="mcq-option-btn" data-word="${opt}">${opt}</button>`
                 ).join('');
@@ -865,55 +897,67 @@
                 mcqFeedback.innerHTML = '';
                 mcqNextBtn.disabled = true;
                 mcqSpeakerBtn.style.pointerEvents = 'auto';
-                updateScoreDisplay(mcqState);
+                updateScore(mcqState);
                 speakWord(correct);
             }
 
             async function speakCurrentMcqWord() {
                 const wordObj = getCurrentWord(mcqState);
-                if (!wordObj) return;
+                if (!wordObj || mcqState.gameOver) return;
                 mcqSpeakerBtn.classList.add('speaking');
-                try { await speakWord(wordObj.word); } catch (e) {} finally { mcqSpeakerBtn.classList.remove('speaking'); }
+                await speakWord(wordObj.word);
+                mcqSpeakerBtn.classList.remove('speaking');
             }
 
             function handleMcqChoice(clickedBtn, correctWord) {
-                if (mcqState.gameOver || mcqNextBtn.disabled === false) return; // avoid double answer
+                if (mcqState.gameOver || mcqState.correction.active || mcqNextBtn.disabled === false) return;
                 const selected = clickedBtn.dataset.word;
                 const isCorrect = selected === correctWord.toLowerCase();
-                // Highlight correct button and disable all
                 document.querySelectorAll('.mcq-option-btn').forEach(btn => {
                     btn.disabled = true;
-                    if (btn.dataset.word === correctWord.toLowerCase()) {
-                        btn.classList.add('option-correct');
-                    }
+                    if (btn.dataset.word === correctWord.toLowerCase()) btn.classList.add('option-correct');
                 });
                 if (isCorrect) {
                     clickedBtn.classList.add('option-correct');
                     mcqFeedback.innerHTML = '<span class="feedback-correct">🎉 Correct!</span>';
                     mcqState.correctCount++;
+                    updateScore(mcqState);
+                    mcqNextBtn.disabled = false;
                 } else {
                     clickedBtn.classList.add('option-incorrect');
                     mcqFeedback.innerHTML = `<span class="feedback-wrong">❌ The correct spelling is: <span class="correct-spelling">${correctWord}</span></span>`;
+                    // disable options and start correction after delay
+                    setTimeout(() => {
+                        startCorrection(mcqState, correctWord, mcqNextBtn, mcqFeedback, mcqCorrectionInput, mcqCorrectionCheckBtn, 'mcq');
+                    }, 600);
                 }
-                updateScoreDisplay(mcqState);
-                mcqNextBtn.disabled = false;
             }
 
-            function mcqNext() {
+            mcqCorrectionInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleCorrectionInput(e, mcqState, mcqNextBtn, mcqFeedback, mcqCorrectionInput, mcqCorrectionCheckBtn);
+                }
+            });
+            mcqCorrectionCheckBtn.addEventListener('click', (e) => {
+                handleCorrectionInput(e, mcqState, mcqNextBtn, mcqFeedback, mcqCorrectionInput, mcqCorrectionCheckBtn);
+            });
+
+            mcqNextBtn.addEventListener('click', () => {
                 if (mcqState.index < wordList.length) {
                     mcqState.index++;
                     loadMcqWord();
                 }
-            }
-
-            function mcqRestart() {
+            });
+            mcqRestartBtn.addEventListener('click', () => {
                 mcqState.index = 0;
                 mcqState.correctCount = 0;
                 mcqState.gameOver = false;
+                mcqState.correction.active = false;
                 loadMcqWord();
-            }
+            });
 
-            // ==================== TAB SWITCHING ====================
+            // Tab switching
             function switchTab(tabName) {
                 activeTab = tabName;
                 tabBtns.forEach(b => b.classList.remove('active'));
@@ -930,28 +974,14 @@
                 window.speechSynthesis.cancel();
             }
 
-            tabBtns.forEach(btn => {
-                btn.addEventListener('click', () => switchTab(btn.dataset.tab));
-            });
+            tabBtns.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
 
-            // ==================== EVENT LISTENERS ====================
-            // Practice
+            // Extra listeners
             practiceSpeakerBtn.addEventListener('click', speakCurrentPracticeWord);
             practiceListenAgainBtn.addEventListener('click', speakCurrentPracticeWord);
-            submitBtn.addEventListener('click', checkSpelling);
-            spellInput.addEventListener('keydown', e => {
-                if (e.key === 'Enter') { e.preventDefault(); checkSpelling(); }
-            });
-            practiceNextBtn.addEventListener('click', practiceNext);
-            practiceRestartBtn.addEventListener('click', practiceRestart);
-
-            // MCQ
             mcqSpeakerBtn.addEventListener('click', speakCurrentMcqWord);
             mcqListenAgainBtn.addEventListener('click', speakCurrentMcqWord);
-            mcqNextBtn.addEventListener('click', mcqNext);
-            mcqRestartBtn.addEventListener('click', mcqRestart);
 
-            // Cancel speech on visibility change
             document.addEventListener('visibilitychange', () => {
                 if (document.hidden && 'speechSynthesis' in window) {
                     window.speechSynthesis.cancel();
@@ -960,10 +990,9 @@
                 }
             });
 
-            // ==================== INIT ====================
+            // Init
             preloadVoices();
             loadWordList();
-            // Initial load for practice tab (active default)
             switchTab('practice');
         })();
     </script>
